@@ -1,15 +1,22 @@
 const express = require('express');
+const mongoose = require('mongoose');
+const keys = require('./config/keys');
+const cookieSession = require('cookie-session');
+const passport = require('passport');
+mongoose.connect(keys.mongoURI);
 const app = express();
-require('./service/passport');
+app.use(cookieSession(
+{
+	maxAge: 30*24*60*60*1000,
+	keys: [keys.cookieKey]
+})
+);
 
-/*
-app.get('/', (req,res) => {
-	res.send({bye: 'buddy'});
-});
-*/
+app.use(passport.initialize());
+app.use(passport.session());
+require('./models/User');
+require('./Service/passport');
 
-// 802514765834-0umqvlfbci87s8aumngers4v94lck7l2.apps.googleusercontent.com
-// KGAcS2VUJ-awqRs-Hj0KjzAu
 require('./routes/authRoutes')(app);
-const PORT = process.env.port;
-app.listen(PORT || 5000);
+const PORT = process.env.PORT || 5000;
+app.listen(PORT);
